@@ -4,6 +4,8 @@ import os
 from src.audio.tts_engine import create_voice
 from src.subtitle.scrolling_text import create_text_image
 from src.image.image_engine import download_image
+from src.upload.telegram import send_video
+
 
 
 def create_video(story, number, config):
@@ -11,23 +13,33 @@ def create_video(story, number, config):
     title = story["title"]
     text = story["content"]
 
+
+    print("==============================")
     print("Creating:", title)
+    print("==============================")
 
 
-    # Create image
+    # -------------------------
+    # Create background image
+    # -------------------------
+
     image_path = download_image(
         title,
         f"scene_{number}"
     )
 
 
-    if image_path is None:
+    if not image_path:
+
         print("Image failed")
         return
 
 
 
+    # -------------------------
     # Create Sinhala voice
+    # -------------------------
+
     audio_path = create_voice(
         text,
         f"voice_{number}"
@@ -39,11 +51,13 @@ def create_video(story, number, config):
     )
 
 
-    duration = audio.duration + 2
+    duration = audio.duration
 
 
 
-    # Background
+    # -------------------------
+    # Background video
+    # -------------------------
 
     background = ImageClip(
         image_path
@@ -54,62 +68,75 @@ def create_video(story, number, config):
         background
         .resized(
             (
-                config["video_width"],
-                config["video_height"]
+                1080,
+                1920
             )
         )
         .with_duration(duration)
     )
 
 
-    # Zoom effect
+
+    # Slow zoom effect
 
     background = background.resized(
-        lambda t: 1 + (0.03 * t)
+        lambda t:
+        1 + (0.02*t)
     )
 
 
 
-    # Subtitle image
+    # -------------------------
+    # Sinhala subtitle
+    # -------------------------
 
-    subtitle_image = create_text_image(
+    subtitle_path = create_text_image(
         text,
         f"subtitle_{number}"
     )
 
 
     subtitle = ImageClip(
-        subtitle_image
-    ).resized(
-        1.2
+        subtitle_path
     )
 
 
     subtitle = (
         subtitle
-        .with_duration(duration)
+        .resized(
+            1.3
+        )
+        .with_duration(
+            duration
+        )
         .with_position(
             (
                 "center",
-                1200
+                1250
             )
         )
     )
 
 
 
+    # -------------------------
     # Combine
+    # -------------------------
 
     video = CompositeVideoClip(
+
         [
             background,
             subtitle
         ],
+
         size=(
-            config["video_width"],
-            config["video_height"]
+            1080,
+            1920
         )
+
     )
+
 
 
     video = video.with_audio(
@@ -118,7 +145,9 @@ def create_video(story, number, config):
 
 
 
-    # Save
+    # -------------------------
+    # Save video
+    # -------------------------
 
     os.makedirs(
         "output/videos",
@@ -132,19 +161,53 @@ def create_video(story, number, config):
     )
 
 
-    print("Rendering video...")
 
-
-    video.write_videofile(
-        output,
-        fps=30,
-        codec="libx264",
-        audio_codec="aac",
-        preset="medium"
+    print(
+        "Rendering video..."
     )
 
 
+    video.write_videofile(
+
+        output,
+
+        fps=30,
+
+        codec="libx264",
+
+        audio_codec="aac",
+
+        preset="medium"
+
+    )
+
+
+
     print(
-        "Finished:",
+        "Video created:",
         output
+    )
+
+
+
+    # -------------------------
+    # Send Telegram
+    # -------------------------
+
+    try:
+
+        send_video(
+            output
+        )
+
+    except Exception as e:
+
+        print(
+            "Telegram error:",
+            e
+        )
+
+
+    print(
+        "Finished"
     )
