@@ -63,7 +63,7 @@ def create_text_image(
 
 
 
-    y = 1400
+    y = 900
 
 
     line = ""
