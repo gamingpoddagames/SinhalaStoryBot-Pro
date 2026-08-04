@@ -1,8 +1,7 @@
 from moviepy import *
 
 import os
-from src.subtitle.animation import scroll_text
-from src.video.intro import create_intro, create_outro
+
 from src.audio.tts_engine import create_voice
 from src.subtitle.scrolling_text import create_text_image
 from src.image.image_engine import download_image
@@ -10,90 +9,79 @@ from src.upload.metadata import create_metadata
 from src.upload.queue import add_to_queue
 
 
-def create_video(
-        story,
-        number,
-        config):
 
+def create_video(story, number, config):
 
     title = story["title"]
-
     text = story["content"]
 
+    print("Rendering:", title)
 
-    print(
-        "Rendering:",
-        title
+
+    # Create background image
+    image_path = download_image(
+        title,
+        f"background_{number}"
     )
 
 
-    image = create_text_image(
-        text,
-        f"text_{number}"
-    )
-
-
-    audio = create_voice(
+    # Create Sinhala voice
+    audio_path = create_voice(
         text,
         f"voice_{number}"
     )
 
 
-   image_path = download_image(
-    story["title"],
-    f"background_{number}"
-)
-
-
-background = ImageClip(
-    image_path
-).resized(
-    (
-        config["video_width"],
-        config["video_height"]
+    # Create subtitle image
+    text_image = create_text_image(
+        text,
+        f"text_{number}"
     )
-).with_duration(60)
 
 
+    # Background video
+    background = ImageClip(
+        image_path
+    ).resized(
+        (
+            config["video_width"],
+            config["video_height"]
+        )
+    ).with_duration(60)
+
+
+
+    # Subtitle layer
     subtitle = ImageClip(
-    image
-)
-
-subtitle = scroll_text(
-    subtitle,
-    60
-)
+        text_image
+    ).with_duration(60)
 
 
 
-   intro = create_intro()
-
-outro = create_outro()
-
-
-video = concatenate_videoclips(
-[
-    intro,
-    CompositeVideoClip(
+    # Combine layers
+    video = CompositeVideoClip(
         [
             background,
             subtitle
         ]
-    ),
-    outro
-]
-)
-
-
-    voice = AudioFileClip(
-        audio
     )
 
+
+    # Add voice
+    voice = AudioFileClip(
+        audio_path
+    )
 
     video = video.with_audio(
         voice
     )
 
+
+    # Output file
+    os.makedirs(
+        config["output_folder"],
+        exist_ok=True
+    )
 
 
     output = (
@@ -102,26 +90,23 @@ video = concatenate_videoclips(
     )
 
 
-    os.makedirs(
-        config["output_folder"],
-        exist_ok=True
-    )
-metadata = create_metadata(
-    title
-)
-
-
-add_to_queue(
-    output,
-    metadata
-)
-
-
     video.write_videofile(
         output,
         fps=config["fps"],
         codec="libx264",
         audio_codec="aac"
+    )
+
+
+    # Add upload queue
+    metadata = create_metadata(
+        title
+    )
+
+
+    add_to_queue(
+        output,
+        metadata
     )
 
 
