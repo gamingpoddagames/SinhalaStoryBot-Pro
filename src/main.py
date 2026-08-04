@@ -1,6 +1,10 @@
 import json
+
 from src.story.story_engine import create_story
 from src.video.video_builder import create_video
+
+from src.utils.logger import setup_logger
+
 
 
 def load_config():
@@ -9,34 +13,65 @@ def load_config():
         "config/settings.json",
         "r",
         encoding="utf-8"
-    ) as file:
 
-        return json.load(file)
+    ) as f:
+
+        return json.load(f)
+
 
 
 
 def start_bot():
 
+
+    logger = setup_logger()
+
+
     config = load_config()
 
-    print("==============================")
-    print(" SinhalaStoryBot Pro Started ")
-    print("==============================")
+
+    logger.info(
+        "Bot Started"
+    )
 
 
-    for number in range(config["videos_per_day"]):
-
-        print(
-            f"Creating Video {number+1}/{config['videos_per_day']}"
-        )
-
-        story = create_story()
-
-        create_video(
-            story,
-            number+1,
-            config
-        )
+    for i in range(
+        config["videos_per_day"]
+    ):
 
 
-    print("All videos completed")
+        try:
+
+
+            logger.info(
+                f"Creating video {i+1}"
+            )
+
+
+            story = create_story()
+
+
+            create_video(
+                story,
+                i+1,
+                config
+            )
+
+
+            logger.info(
+                "Video completed"
+            )
+
+
+
+        except Exception as e:
+
+
+            logger.error(
+                str(e)
+            )
+
+
+    logger.info(
+        "Bot Finished"
+    )
