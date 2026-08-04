@@ -1,5 +1,4 @@
 from moviepy import *
-
 import os
 
 from src.audio.tts_engine import create_voice
@@ -7,7 +6,6 @@ from src.subtitle.scrolling_text import create_text_image
 from src.image.image_engine import download_image
 from src.upload.metadata import create_metadata
 from src.upload.queue import add_to_queue
-
 
 
 def create_video(story, number, config):
@@ -18,28 +16,31 @@ def create_video(story, number, config):
     print("Rendering:", title)
 
 
-    # Create background image
+    # Background image
     image_path = download_image(
         title,
         f"background_{number}"
     )
 
 
-    # Create Sinhala voice
+    # Sinhala voice
     audio_path = create_voice(
         text,
         f"voice_{number}"
     )
 
 
-    # Create subtitle image
+    # Subtitle image
     text_image = create_text_image(
         text,
         f"text_{number}"
     )
 
 
-    # Background video
+    duration = 15
+
+
+    # Create background video
     background = ImageClip(
         image_path
     ).resized(
@@ -47,18 +48,17 @@ def create_video(story, number, config):
             config["video_width"],
             config["video_height"]
         )
-    ).with_duration(60)
+    ).with_duration(duration)
 
 
 
-    # Subtitle layer
+    # Add text layer
     subtitle = ImageClip(
         text_image
-    ).with_duration(60)
+    ).with_duration(duration)
 
 
 
-    # Combine layers
     video = CompositeVideoClip(
         [
             background,
@@ -67,7 +67,7 @@ def create_video(story, number, config):
     )
 
 
-    # Add voice
+    # Add audio
     voice = AudioFileClip(
         audio_path
     )
@@ -77,7 +77,6 @@ def create_video(story, number, config):
     )
 
 
-    # Output file
     os.makedirs(
         config["output_folder"],
         exist_ok=True
@@ -90,16 +89,18 @@ def create_video(story, number, config):
     )
 
 
- video.write_videofile(
-    output,
-    fps=24,
-    codec="libx264",
-    audio_codec="aac",
-    preset="ultrafast"
-)
+    print("Exporting video...")
 
 
-    # Add upload queue
+    video.write_videofile(
+        output,
+        fps=24,
+        codec="libx264",
+        audio_codec="aac",
+        preset="ultrafast"
+    )
+
+
     metadata = create_metadata(
         title
     )
