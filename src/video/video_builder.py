@@ -14,14 +14,10 @@ def create_video(story, number, config):
     text = story["content"]
 
 
-    print("==============================")
     print("Creating:", title)
-    print("==============================")
 
 
-    # -------------------------
-    # Create background image
-    # -------------------------
+    # IMAGE
 
     image_path = download_image(
         title,
@@ -29,16 +25,7 @@ def create_video(story, number, config):
     )
 
 
-    if not image_path:
-
-        print("Image failed")
-        return
-
-
-
-    # -------------------------
-    # Create Sinhala voice
-    # -------------------------
+    # VOICE
 
     audio_path = create_voice(
         text,
@@ -51,13 +38,11 @@ def create_video(story, number, config):
     )
 
 
-    duration = audio.duration
+    duration = audio.duration + 1
 
 
 
-    # -------------------------
-    # Background video
-    # -------------------------
+    # BACKGROUND
 
     background = ImageClip(
         image_path
@@ -77,18 +62,22 @@ def create_video(story, number, config):
 
 
 
-    # Slow zoom effect
+    # ADD DARK OVERLAY
+    # makes text readable
 
-    background = background.resized(
-        lambda t:
-        1 + (0.02*t)
+    dark = ColorClip(
+        size=(1080,1920),
+        color=(0,0,0),
+        duration=duration
+    )
+
+    dark = dark.with_opacity(
+        0.25
     )
 
 
 
-    # -------------------------
-    # Sinhala subtitle
-    # -------------------------
+    # SUBTITLE IMAGE
 
     subtitle_path = create_text_image(
         text,
@@ -103,37 +92,25 @@ def create_video(story, number, config):
 
     subtitle = (
         subtitle
-        .resized(
-            1.3
-        )
-        .with_duration(
-            duration
-        )
+        .with_duration(duration)
         .with_position(
             (
                 "center",
-                1250
+                "center"
             )
         )
     )
 
 
 
-    # -------------------------
-    # Combine
-    # -------------------------
-
     video = CompositeVideoClip(
-
         [
             background,
+            dark,
             subtitle
         ],
 
-        size=(
-            1080,
-            1920
-        )
+        size=(1080,1920)
 
     )
 
@@ -144,10 +121,6 @@ def create_video(story, number, config):
     )
 
 
-
-    # -------------------------
-    # Save video
-    # -------------------------
 
     os.makedirs(
         "output/videos",
@@ -162,9 +135,7 @@ def create_video(story, number, config):
 
 
 
-    print(
-        "Rendering video..."
-    )
+    print("Rendering...")
 
 
     video.write_videofile(
@@ -182,32 +153,16 @@ def create_video(story, number, config):
     )
 
 
-
     print(
-        "Video created:",
+        "Created:",
         output
     )
 
 
-
-    # -------------------------
-    # Send Telegram
-    # -------------------------
-
     try:
 
-        send_video(
-            output
-        )
+        send_video(output)
 
-    except Exception as e:
+    except:
 
-        print(
-            "Telegram error:",
-            e
-        )
-
-
-    print(
-        "Finished"
-    )
+        pass
