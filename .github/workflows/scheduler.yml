@@ -44,7 +44,7 @@ jobs:
 
     - name: Install Sinhala Fonts
       run: |
-        sudo apt install -y fonts-noto-core fonts-noto-extra
+       sudo apt install -y fonts-noto-core fonts-noto-extra fonts-lklug-sinhala
 
 
 
