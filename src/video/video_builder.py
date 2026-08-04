@@ -90,16 +90,17 @@ def create_video(story, number, config):
     )
 
 
-    subtitle = (
-        subtitle
-        .with_duration(duration)
-        .with_position(
-            (
-                "center",
-                "center"
-            )
+   subtitle = (
+    subtitle
+    .with_duration(duration)
+    .with_position(
+        lambda t:
+        (
+            "center",
+            500 - (t*30)
         )
     )
+)
 
 
 
