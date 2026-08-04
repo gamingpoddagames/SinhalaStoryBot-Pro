@@ -6,7 +6,7 @@ def create_text_image(
         text,
         filename,
         width=1080,
-        height=1920):
+        height=4000):
 
 
     os.makedirs(
@@ -29,7 +29,7 @@ def create_text_image(
 
         font = ImageFont.truetype(
             "arial.ttf",
-            55
+            60
         )
 
     except:
@@ -47,14 +47,18 @@ def create_text_image(
             (80,y),
             line,
             font=font,
-            fill="white"
+            fill=(255,255,255,255)
         )
 
-        y += 90
+        y += 120
 
 
 
-    path = f"output/temp/{filename}.png"
+    path = (
+        f"output/temp/"
+        f"{filename}.png"
+    )
+
 
     img.save(path)
 
