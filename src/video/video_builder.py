@@ -1,7 +1,8 @@
 from moviepy import *
 
 import os
-
+from src.subtitle.animation import scroll_text
+from src.video.intro import create_intro, create_outro
 from src.audio.tts_engine import create_voice
 from src.subtitle.scrolling_text import create_text_image
 from src.image.image_engine import download_image
