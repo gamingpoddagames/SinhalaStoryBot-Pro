@@ -2,11 +2,30 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 
 
+def get_font(size):
+
+    fonts = [
+        "/usr/share/fonts/truetype/noto/NotoSansSinhala-Regular.ttf",
+        "/usr/share/fonts/opentype/noto/NotoSansSinhala-Regular.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+    ]
+
+    for font in fonts:
+        if os.path.exists(font):
+            return ImageFont.truetype(
+                font,
+                size
+            )
+
+    return ImageFont.load_default()
+
+
+
 def create_text_image(
         text,
         filename,
         width=1080,
-        height=2000):
+        height=1920):
 
 
     os.makedirs(
@@ -15,32 +34,80 @@ def create_text_image(
     )
 
 
-    img = Image.new(
+    image = Image.new(
         "RGBA",
-        (width,height),
-        (0,0,0,0)
+        (
+            width,
+            height
+        ),
+        (
+            0,
+            0,
+            0,
+            0
+        )
     )
 
 
-    draw = ImageDraw.Draw(img)
+    draw = ImageDraw.Draw(
+        image
+    )
 
 
-    font = ImageFont.load_default()
+    font = get_font(85)
 
 
-    y = 100
+
+    # Take only first lines
+    words = text.split()
 
 
-    for line in text.split("\n"):
+
+    y = 1400
+
+
+    line = ""
+
+
+    for word in words[:12]:
+
+        if len(line + word) < 20:
+
+            line += word + " "
+
+        else:
+
+            draw.text(
+                (
+                    80,
+                    y
+                ),
+                line,
+                font=font,
+                fill=(255,255,255,255),
+                stroke_width=3,
+                stroke_fill=(0,0,0,255)
+            )
+
+            y += 120
+
+            line = word + " "
+
+
+
+    if line:
 
         draw.text(
-            (50,y),
+            (
+                80,
+                y
+            ),
             line,
             font=font,
-            fill="white"
+            fill=(255,255,0,255),
+            stroke_width=3,
+            stroke_fill=(0,0,0,255)
         )
-
-        y += 80
 
 
 
@@ -51,11 +118,7 @@ def create_text_image(
     )
 
 
-    img.save(path)
-
-
-    print(
-        "Subtitle created:",
+    image.save(
         path
     )
 
