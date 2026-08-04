@@ -1,0 +1,26 @@
+{
+    "videos_per_day": 5,
+    "video_width": 1080,
+    "video_height": 1920,
+    "fps": 30,
+
+    "language": "si",
+
+    "output_folder": "output/videos",
+
+    "story_categories": [
+        "emotional",
+        "family",
+        "love",
+        "village",
+        "mystery",
+        "motivation",
+        "horror",
+        "life lesson"
+    ],
+
+    "video_duration": 60,
+
+    "add_music": true,
+    "add_subtitles": true
+}
