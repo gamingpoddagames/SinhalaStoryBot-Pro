@@ -5,8 +5,9 @@ import os
 def get_font(size):
 
     fonts = [
+        "/usr/share/fonts/truetype/noto/NotoSansSinhala-Regular.ttf",
         "/usr/share/fonts/opentype/noto/NotoSansSinhala-Regular.ttf",
-        "/usr/share/fonts/truetype/noto/NotoSansSinhala-Regular.ttf"
+        "/usr/share/fonts/truetype/lklug/LKLUG.ttf"
     ]
 
     for f in fonts:
@@ -17,7 +18,7 @@ def get_font(size):
 
 
 
-def create_text_image(text, filename):
+def create_text_pages(text, filename):
 
     os.makedirs(
         "output/temp",
@@ -25,86 +26,81 @@ def create_text_image(text, filename):
     )
 
 
-    width = 1080
-    height = 1920
+    sentences = []
+
+    for s in text.replace("\n"," ").split("."):
+
+        if len(s.strip()) > 5:
+            sentences.append(
+                s.strip()
+            )
 
 
-    img = Image.new(
-        "RGBA",
-        (width,height),
-        (0,0,0,0)
-    )
+    pages=[]
 
 
-    draw = ImageDraw.Draw(img)
+    # create multiple subtitle images
 
+    for index in range(0,len(sentences),3):
 
-    font = get_font(55)
-
-
-
-    # split text into smaller parts
-
-    words = text.split()
-
-
-    lines=[]
-
-    current=""
-
-
-    for word in words:
-
-        if len(current + word) < 22:
-
-            current += word + " "
-
-        else:
-
-            lines.append(current)
-
-            current = word + " "
-
-
-    if current:
-        lines.append(current)
-
-
-
-    # show more lines
-
-    y=550
-
-
-    for line in lines[:10]:
-
-        box = draw.textbbox(
-            (0,0),
-            line,
-            font=font
-        )
-
-        x=(width-(box[2]-box[0]))//2
-
-
-        draw.text(
-            (x,y),
-            line,
-            font=font,
-            fill="white",
-            stroke_width=3,
-            stroke_fill="black"
+        page_text="\n".join(
+            sentences[index:index+3]
         )
 
 
-        y+=90
+        img=Image.new(
+            "RGBA",
+            (1080,1920),
+            (0,0,0,0)
+        )
+
+
+        draw=ImageDraw.Draw(img)
+
+        font=get_font(65)
+
+
+        lines=page_text.split("\n")
+
+
+        y=750
+
+
+        for line in lines:
+
+
+            box=draw.textbbox(
+                (0,0),
+                line,
+                font=font
+            )
+
+
+            x=(1080-(box[2]-box[0]))//2
+
+
+            draw.text(
+                (x,y),
+                line,
+                font=font,
+                fill="white",
+                stroke_width=4,
+                stroke_fill="black"
+            )
+
+
+            y+=120
 
 
 
-    path=f"output/temp/{filename}.png"
+        path=f"output/temp/{filename}_{len(pages)}.png"
 
 
-    img.save(path)
+        img.save(path)
 
 
-    return path
+        pages.append(path)
+
+
+
+    return pages
