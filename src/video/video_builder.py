@@ -11,72 +11,34 @@ def create_video(story, number, config):
     title = story["title"]
     text = story["content"]
 
-
-    print("Creating:", title)
-
-
-    duration = 60
+    print("==============================")
+    print("Creating Video:", title)
+    print("==============================")
 
 
-    # create image based on story
+    # -----------------------------
+    # Create background image
+    # -----------------------------
+
     image_path = download_image(
         title,
         f"scene_{number}"
     )
 
 
-    # create voice
+    if image_path is None:
+        print("Image creation failed")
+        return
+
+
+
+    # -----------------------------
+    # Create Sinhala voice
+    # -----------------------------
+
     audio_path = create_voice(
         text,
         f"voice_{number}"
-    )
-
-
-    # create scrolling text
-    text_path = create_text_image(
-        text,
-        f"scroll_{number}"
-    )
-
-
-    background = (
-        ImageClip(image_path)
-        .resized(
-            (
-                1080,
-                1920
-            )
-        )
-        .with_duration(duration)
-    )
-
-
-    # slow zoom effect
-
-    background = background.resized(
-        lambda t:
-        1 + (0.05*t)
-    )
-
-
-    subtitle = (
-        ImageClip(text_path)
-        .with_duration(duration)
-        .with_position(
-            lambda t:
-            (
-                "center",
-                1800-(t*50)
-            )
-        )
-    )
-
-
-    video = CompositeVideoClip(
-        [
-            background,
-            subtitle
-        ]
     )
 
 
@@ -85,10 +47,111 @@ def create_video(story, number, config):
     )
 
 
+    duration = audio.duration + 2
+
+
+    print(
+        "Video duration:",
+        duration
+    )
+
+
+
+    # -----------------------------
+    # Background video
+    # -----------------------------
+
+    background = ImageClip(
+        image_path
+    )
+
+
+    background = (
+        background
+        .resized(
+            (
+                config["video_width"],
+                config["video_height"]
+            )
+        )
+        .with_duration(duration)
+    )
+
+
+    # Slow zoom effect
+
+    background = background.resized(
+        lambda t:
+        1 + (0.03*t)
+    )
+
+
+
+    # Center crop after zoom
+
+    background = background.with_position(
+        ("center","center")
+    )
+
+
+
+    # -----------------------------
+    # Sinhala scrolling text
+    # -----------------------------
+
+    text_image = create_text_image(
+        text,
+        f"subtitle_{number}"
+    )
+
+
+    subtitle = ImageClip(
+        text_image
+    )
+
+
+    subtitle = (
+        subtitle
+        .with_duration(duration)
+        .with_position(
+            lambda t:
+            (
+                "center",
+                1800 - (t * 70)
+            )
+        )
+    )
+
+
+
+    # -----------------------------
+    # Combine video layers
+    # -----------------------------
+
+    video = CompositeVideoClip(
+        [
+            background,
+            subtitle
+        ],
+        size=(
+            config["video_width"],
+            config["video_height"]
+        )
+    )
+
+
+
+    # Add voice
+
     video = video.with_audio(
         audio
     )
 
+
+
+    # -----------------------------
+    # Save
+    # -----------------------------
 
     os.makedirs(
         "output/videos",
@@ -102,6 +165,11 @@ def create_video(story, number, config):
     )
 
 
+    print(
+        "Rendering..."
+    )
+
+
     video.write_videofile(
         output,
         fps=30,
@@ -112,6 +180,6 @@ def create_video(story, number, config):
 
 
     print(
-        "DONE:",
+        "Completed:",
         output
     )
