@@ -6,7 +6,8 @@ from src.video.intro import create_intro, create_outro
 from src.audio.tts_engine import create_voice
 from src.subtitle.scrolling_text import create_text_image
 from src.image.image_engine import download_image
-
+from src.upload.metadata import create_metadata
+from src.upload.queue import add_to_queue
 
 
 def create_video(
@@ -105,7 +106,15 @@ video = concatenate_videoclips(
         config["output_folder"],
         exist_ok=True
     )
+metadata = create_metadata(
+    title
+)
 
+
+add_to_queue(
+    output,
+    metadata
+)
 
 
     video.write_videofile(
