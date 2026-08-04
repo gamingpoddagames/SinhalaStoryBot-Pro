@@ -4,8 +4,6 @@ import os
 from src.audio.tts_engine import create_voice
 from src.subtitle.scrolling_text import create_text_image
 from src.image.image_engine import download_image
-from src.upload.metadata import create_metadata
-from src.upload.queue import add_to_queue
 
 
 def create_video(story, number, config):
@@ -13,50 +11,65 @@ def create_video(story, number, config):
     title = story["title"]
     text = story["content"]
 
-    print("Rendering:", title)
+
+    print("Creating:", title)
 
 
-    # Background image
+    duration = 60
+
+
+    # create image based on story
     image_path = download_image(
         title,
-        f"background_{number}"
+        f"scene_{number}"
     )
 
 
-    # Sinhala voice
+    # create voice
     audio_path = create_voice(
         text,
         f"voice_{number}"
     )
 
 
-    # Subtitle image
-    text_image = create_text_image(
+    # create scrolling text
+    text_path = create_text_image(
         text,
-        f"text_{number}"
+        f"scroll_{number}"
     )
 
 
-    duration = 15
-
-
-    # Create background video
-    background = ImageClip(
-        image_path
-    ).resized(
-        (
-            config["video_width"],
-            config["video_height"]
+    background = (
+        ImageClip(image_path)
+        .resized(
+            (
+                1080,
+                1920
+            )
         )
-    ).with_duration(duration)
+        .with_duration(duration)
+    )
 
 
+    # slow zoom effect
 
-    # Add text layer
-    subtitle = ImageClip(
-        text_image
-    ).with_duration(duration)
+    background = background.resized(
+        lambda t:
+        1 + (0.05*t)
+    )
 
+
+    subtitle = (
+        ImageClip(text_path)
+        .with_duration(duration)
+        .with_position(
+            lambda t:
+            (
+                "center",
+                1800-(t*50)
+            )
+        )
+    )
 
 
     video = CompositeVideoClip(
@@ -67,52 +80,38 @@ def create_video(story, number, config):
     )
 
 
-    # Add audio
-    voice = AudioFileClip(
+    audio = AudioFileClip(
         audio_path
     )
 
+
     video = video.with_audio(
-        voice
+        audio
     )
 
 
     os.makedirs(
-        config["output_folder"],
+        "output/videos",
         exist_ok=True
     )
 
 
     output = (
-        f"{config['output_folder']}/"
+        "output/videos/"
         f"story_{number}.mp4"
     )
 
 
-    print("Exporting video...")
-
-
     video.write_videofile(
         output,
-        fps=24,
+        fps=30,
         codec="libx264",
         audio_codec="aac",
-        preset="ultrafast"
-    )
-
-
-    metadata = create_metadata(
-        title
-    )
-
-
-    add_to_queue(
-        output,
-        metadata
+        preset="medium"
     )
 
 
     print(
-        "Saved:",
+        "DONE:",
         output
     )
