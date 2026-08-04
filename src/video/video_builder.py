@@ -55,8 +55,13 @@ background = ImageClip(
 
 
     subtitle = ImageClip(
-        image
-    ).with_duration(60)
+    image
+)
+
+subtitle = scroll_text(
+    subtitle,
+    60
+)
 
 
 
