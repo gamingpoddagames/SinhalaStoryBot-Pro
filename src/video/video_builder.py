@@ -37,14 +37,20 @@ def create_video(
     )
 
 
-    background = ColorClip(
-        size=(
-            config["video_width"],
-            config["video_height"]
-        ),
-        color=(20,20,20),
-        duration=60
+   image_path = download_image(
+    story["title"],
+    f"background_{number}"
+)
+
+
+background = ImageClip(
+    image_path
+).resized(
+    (
+        config["video_width"],
+        config["video_height"]
     )
+).with_duration(60)
 
 
     subtitle = ImageClip(
