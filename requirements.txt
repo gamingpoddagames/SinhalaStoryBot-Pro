@@ -1,7 +1,7 @@
 moviepy==2.2.1
 opencv-python
-numpy
 Pillow
+numpy
 imageio
 imageio-ffmpeg
 ffmpeg-python
@@ -11,9 +11,4 @@ tqdm
 schedule
 pydub
 gTTS
-beautifulsoup4
-lxml
-aiohttp
-tenacity
-python-dateutil
 SQLAlchemy
