@@ -11,15 +11,10 @@ def create_video(story, number, config):
     title = story["title"]
     text = story["content"]
 
-    print("==============================")
-    print("Creating Video:", title)
-    print("==============================")
+    print("Creating:", title)
 
 
-    # -----------------------------
-    # Create background image
-    # -----------------------------
-
+    # Create image
     image_path = download_image(
         title,
         f"scene_{number}"
@@ -27,15 +22,12 @@ def create_video(story, number, config):
 
 
     if image_path is None:
-        print("Image creation failed")
+        print("Image failed")
         return
 
 
 
-    # -----------------------------
     # Create Sinhala voice
-    # -----------------------------
-
     audio_path = create_voice(
         text,
         f"voice_{number}"
@@ -50,16 +42,8 @@ def create_video(story, number, config):
     duration = audio.duration + 2
 
 
-    print(
-        "Video duration:",
-        duration
-    )
 
-
-
-    # -----------------------------
-    # Background video
-    # -----------------------------
+    # Background
 
     background = ImageClip(
         image_path
@@ -78,56 +62,43 @@ def create_video(story, number, config):
     )
 
 
-    # Slow zoom effect
+    # Zoom effect
 
     background = background.resized(
-        lambda t:
-        1 + (0.03*t)
+        lambda t: 1 + (0.03 * t)
     )
 
 
 
-    # Center crop after zoom
+    # Subtitle image
 
-    background = background.with_position(
-        ("center","center")
-    )
-
-
-
-    # -----------------------------
-    # Sinhala scrolling text
-    # -----------------------------
-
-    text_image = create_text_image(
+    subtitle_image = create_text_image(
         text,
         f"subtitle_{number}"
     )
 
-subtitle = ImageClip(
-    text_image
-).resized(
-    1.2
-)
+
+    subtitle = ImageClip(
+        subtitle_image
+    ).resized(
+        1.2
+    )
 
 
     subtitle = (
         subtitle
         .with_duration(duration)
         .with_position(
-            lambda t:
             (
                 "center",
-                1800 - (t * 70)
+                1200
             )
         )
     )
 
 
 
-    # -----------------------------
-    # Combine video layers
-    # -----------------------------
+    # Combine
 
     video = CompositeVideoClip(
         [
@@ -141,18 +112,13 @@ subtitle = ImageClip(
     )
 
 
-
-    # Add voice
-
     video = video.with_audio(
         audio
     )
 
 
 
-    # -----------------------------
     # Save
-    # -----------------------------
 
     os.makedirs(
         "output/videos",
@@ -166,9 +132,7 @@ subtitle = ImageClip(
     )
 
 
-    print(
-        "Rendering..."
-    )
+    print("Rendering video...")
 
 
     video.write_videofile(
@@ -181,6 +145,6 @@ subtitle = ImageClip(
 
 
     print(
-        "Completed:",
+        "Finished:",
         output
     )
