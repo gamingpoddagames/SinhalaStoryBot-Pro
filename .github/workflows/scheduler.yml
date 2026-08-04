@@ -6,7 +6,7 @@ on:
 
   schedule:
     # GitHub uses UTC time
-    # Runs 5 times per day
+    # 5 videos per day
     - cron: "30 1 * * *"
     - cron: "30 4 * * *"
     - cron: "30 7 * * *"
@@ -27,10 +27,12 @@ jobs:
       uses: actions/checkout@v4
 
 
-    - name: Setup Python 3.12
+    - name: Setup Python
       uses: actions/setup-python@v5
+
       with:
         python-version: "3.12"
+
 
 
     - name: Install FFmpeg
@@ -39,13 +41,21 @@ jobs:
         sudo apt install -y ffmpeg
 
 
-    - name: Install Python Libraries
+
+    - name: Install Sinhala Fonts
+      run: |
+        sudo apt install -y fonts-noto-core fonts-noto-extra
+
+
+
+    - name: Install Python Packages
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
 
-    - name: Create Required Folders
+
+    - name: Create Folders
       run: |
         mkdir -p output/videos
         mkdir -p output/images
@@ -55,22 +65,34 @@ jobs:
         mkdir -p database
 
 
-    - name: Run SinhalaStoryBot
+
+    - name: Run Sinhala Story Bot
+      env:
+
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
       run: |
         python run.py
 
 
+
     - name: Check Generated Files
       if: always()
+
       run: |
-        echo "========== OUTPUT CHECK =========="
-        ls -R output || true
-        echo "=================================="
+        echo "====== OUTPUT ======"
+        ls -R output
+        echo "===================="
 
 
-    - name: Upload Generated Videos
+
+    - name: Upload Videos
       if: always()
+
       uses: actions/upload-artifact@v4
+
       with:
 
         name: sinhala-story-videos
