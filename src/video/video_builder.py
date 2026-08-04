@@ -104,10 +104,11 @@ def create_video(story, number, config):
         f"subtitle_{number}"
     )
 
-
-    subtitle = ImageClip(
-        text_image
-    )
+subtitle = ImageClip(
+    text_image
+).resized(
+    1.2
+)
 
 
     subtitle = (
