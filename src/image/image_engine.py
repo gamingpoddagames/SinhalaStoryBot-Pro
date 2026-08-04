@@ -1,6 +1,5 @@
 import requests
 import os
-import random
 
 
 IMAGE_FOLDER = "output/images"
@@ -19,25 +18,21 @@ def download_image(keyword, filename):
 
     create_image_folder()
 
-
-    url = (
-        "https://source.unsplash.com/"
-        "1080x1920/?"
-        + keyword
+    path = (
+        f"{IMAGE_FOLDER}/"
+        f"{filename}.jpg"
     )
+
+
+    # Use a reliable placeholder image
+    url = "https://picsum.photos/1080/1920"
 
 
     try:
 
         response = requests.get(
             url,
-            timeout=20
-        )
-
-
-        path = (
-            f"{IMAGE_FOLDER}/"
-            f"{filename}.jpg"
+            timeout=30
         )
 
 
@@ -51,37 +46,20 @@ def download_image(keyword, filename):
             )
 
 
-        return path
-
-
-    except Exception:
-
-
-        return create_default_image(
-            filename
+        print(
+            "Image created:",
+            path
         )
 
 
-
-def create_default_image(filename):
-
-    from PIL import Image
+        return path
 
 
-    path = (
-        f"{IMAGE_FOLDER}/"
-        f"{filename}.jpg"
-    )
+    except Exception as e:
 
+        print(
+            "Image error:",
+            e
+        )
 
-    img = Image.new(
-        "RGB",
-        (1080,1920),
-        (30,30,30)
-    )
-
-
-    img.save(path)
-
-
-    return path
+        return None
