@@ -90,12 +90,13 @@ def create_video(story, number, config):
     )
 
 
-    video.write_videofile(
-        output,
-        fps=config["fps"],
-        codec="libx264",
-        audio_codec="aac"
-    )
+ video.write_videofile(
+    output,
+    fps=24,
+    codec="libx264",
+    audio_codec="aac",
+    preset="ultrafast"
+)
 
 
     # Add upload queue
