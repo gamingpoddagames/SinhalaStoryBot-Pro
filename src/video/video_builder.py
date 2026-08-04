@@ -65,12 +65,23 @@ subtitle = scroll_text(
 
 
 
-    video = CompositeVideoClip(
+   intro = create_intro()
+
+outro = create_outro()
+
+
+video = concatenate_videoclips(
+[
+    intro,
+    CompositeVideoClip(
         [
             background,
             subtitle
         ]
-    )
+    ),
+    outro
+]
+)
 
 
     voice = AudioFileClip(
