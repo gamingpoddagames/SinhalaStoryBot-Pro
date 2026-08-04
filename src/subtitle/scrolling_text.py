@@ -6,7 +6,7 @@ def create_text_image(
         text,
         filename,
         width=1080,
-        height=4000):
+        height=2000):
 
 
     os.makedirs(
@@ -25,17 +25,7 @@ def create_text_image(
     draw = ImageDraw.Draw(img)
 
 
-    try:
-
-        font = ImageFont.truetype(
-            "arial.ttf",
-            60
-        )
-
-    except:
-
-        font = ImageFont.load_default()
-
+    font = ImageFont.load_default()
 
 
     y = 100
@@ -44,23 +34,30 @@ def create_text_image(
     for line in text.split("\n"):
 
         draw.text(
-            (80,y),
+            (50,y),
             line,
             font=font,
-            fill=(255,255,255,255)
+            fill="white"
         )
 
-        y += 120
+        y += 80
 
 
 
     path = (
-        f"output/temp/"
-        f"{filename}.png"
+        "output/temp/"
+        + filename
+        + ".png"
     )
 
 
     img.save(path)
+
+
+    print(
+        "Subtitle created:",
+        path
+    )
 
 
     return path
